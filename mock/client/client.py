@@ -7,7 +7,7 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 import sys
-import model
+import model as ml_model
 from collections import Counter
 
     
@@ -38,7 +38,7 @@ def getData(dist, x, y):
         
     return np.array(dx), np.array(dy)
 
-model = model.Linear()
+model = ml_model.Model()
 
 transform = transforms.Compose([transforms.ToTensor(), 
                 torch.nn.Flatten(0)])
@@ -69,6 +69,9 @@ filtered_train_dataset = TensorDataset(filtered_train_x_tensor, filtered_train_y
 train_dl = DataLoader(filtered_train_dataset, batch_size=128, shuffle=True)
 test_dl = DataLoader(test_data, batch_size=128, shuffle=False)
 
+# train.train(model, train_dl, test_dl, 10)
+# print("eval: ", train.evaluate(model, test_dl))
+
 
 class FlowerClient(fl.client.NumPyClient):
     def get_parameters(self, config):
@@ -82,13 +85,13 @@ class FlowerClient(fl.client.NumPyClient):
     # returns weights of MNIST netowrk after training
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-        train.train_model(model, train_dl, 1, 'samples.png')
+        train.train(model, train_dl, test_dl, 10)
         return self.get_parameters(config={}), len(train_x), {}
     
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
-        loss = train.evaluate(test_dl, model)
-        return float(loss), 10, {"accuracy:": 0.0}
+        acc = train.evaluate(model, test_dl)
+        return 0.0, 10, {"accuracy: ": acc}
 
 fl.client.start_client(
         server_address="localhost:"+str(sys.argv[1]), 
