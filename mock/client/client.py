@@ -1,6 +1,5 @@
 from typing import OrderedDict
 import flwr as fl
-from torchvision import datasets, transforms
 import numpy as np
 import train
 import torch
@@ -9,6 +8,7 @@ import matplotlib.pyplot as plt
 import sys
 import model as ml_model
 from collections import Counter
+from torchvision import datasets, transforms
 
     
 def getDist(y):
@@ -94,7 +94,7 @@ class FlowerClient(fl.client.NumPyClient):
         return 0.0, 10, {"accuracy: ": acc}
 
 fl.client.start_client(
-        server_address="localhost:"+str(sys.argv[1]), 
-        client=FlowerClient().to_client(),
-        grpc_max_message_length=2 * 1024 * 1024 *1024 -1
+    server_address="server:5002", 
+    client=FlowerClient().to_client(),
+    grpc_max_message_length=2 * 1024 * 1024 *1024 -1
 )

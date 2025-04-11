@@ -14,7 +14,7 @@ with open('config.json', 'r') as file:
 max_clients = config['max_clients']
 source_path = config['source_path']
 data = config['data']
-imports = config['imports'] if data else "flwr torch torchvision numpy matplotlib pandas scikit-learn seaborn"
+imports = config['imports'] if data else "flwr torch numpy matplotlib pandas torchvision scikit-learn seaborn"
 rounds = config['rounds']
 if data:
     assert(max_clients < len([f for f in os.listdir(source_path) if os.path.isfile(os.path.join(source_path, f))])), "Not enough data for the maximum client number"
@@ -115,18 +115,21 @@ def run_experiment(num_clients, output_dir):
     print(f"Info: Starting experiment with {num_clients} clients...")
     generate_docker_compose(num_clients)
     
-    subprocess.run(["sudo", "docker-compose", "up", "-d"], check=True)
+    subprocess.run(["sudo", "docker-compose", "up"], check=True)
 
     # get server container ID
-    result = subprocess.run(["sudo", "docker", "ps", "--format", "{{.ID}} {{.Names}}"], 
+    result = subprocess.run(["sudo", "docker", "ps", "-a", "--format", "{{.ID}} {{.Names}}"], 
                             stdout=subprocess.PIPE, text=True, check=True)
     container_info = result.stdout.strip().split("\n")
 
     server_id = None
     for line in container_info:
-        if "server" in line.split()[1]:
+        if "mock_server" in line.split()[1]:
             server_id = line.split()[0]
             break
+
+    print("Server_id: ", server_id)
+
 
     # copy model
     model_path = f"/app/models/model_round_{rounds}.pth"
