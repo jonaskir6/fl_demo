@@ -1,0 +1,6 @@
+**/data/
+**/d_data/
+**/models/
+**/__pycache__/
+**/Dockerfile*
+**/docker-compose*
