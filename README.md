@@ -18,6 +18,8 @@ The folders with demo_* represent the different versions of the demos, choose a 
 - num_clients: specify the number of clients
 - rounds: specify the number of exchange rounds (iterations)
 2. Run the *script.py*
-```python3 script.py```
+```
+python3 script.py
+```
 
 
