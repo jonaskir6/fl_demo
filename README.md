@@ -14,10 +14,10 @@ The folders with demo_* represent the different versions of the demos, choose a 
 
 ### Run the basic demo
 
-1. Specify your configuration using the *config.json* file:
+1. Specify your configuration using the *config.json* file:  
     - num_clients: specify the number of clients
     - rounds: specify the number of exchange rounds (iterations)
-2. Run the *script.py*
+2. Run the *script.py*  
     ```
     python3 script.py
     ```
