@@ -9,6 +9,15 @@ import sys
 import model as ml_model
 from collections import Counter
 from torchvision import datasets, transforms
+import json
+
+# Load configuration
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+num_epochs = config['num_epochs']  
+batch_size = config['batch_size']
+
 
 train_data = None
 test_data = None
@@ -27,8 +36,8 @@ test_data = None
 
 model = ml_model.Model()
 
-train_dl = DataLoader(train_data, batch_size=128, shuffle=True)
-test_dl = DataLoader(test_data, batch_size=128, shuffle=False)
+train_dl = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+test_dl = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
 
 class FlowerClient(fl.client.NumPyClient):

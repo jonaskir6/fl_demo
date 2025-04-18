@@ -1,4 +1,11 @@
 import torch
+import json
+
+# Load configuration
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+lr = config['learning_rate']
 
 def train(model, train_data, test_data, epochs):
     # Select device
@@ -27,7 +34,7 @@ def train(model, train_data, test_data, epochs):
             loss = criterion(y_logit, y)
             loss.backward()
 
-            optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.95, weight_decay=0.0001)
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.95, weight_decay=0.0001)
             optimizer.step()
 
             optimizer.zero_grad()

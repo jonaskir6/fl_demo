@@ -27,6 +27,7 @@ def generate_dockerfiles():
             COPY client.py /app/client.py
             COPY model.py /app/model.py
             COPY train.py /app/train.py
+            COPY ../config.json /app/config.json
 
             WORKDIR /app
 

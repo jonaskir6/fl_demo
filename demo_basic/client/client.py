@@ -9,6 +9,14 @@ import sys
 import model as ml_model
 from collections import Counter
 from torchvision import datasets, transforms
+import json
+
+# Load configuration
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+num_epochs = config['num_epochs']
+batch_size = config['batch_size']
 
     
 def getDist(y):
@@ -66,8 +74,8 @@ filtered_train_y_tensor = torch.tensor(train_y).long()
 
 filtered_train_dataset = TensorDataset(filtered_train_x_tensor, filtered_train_y_tensor)
 
-train_dl = DataLoader(filtered_train_dataset, batch_size=128, shuffle=True)
-test_dl = DataLoader(test_data, batch_size=128, shuffle=False)
+train_dl = DataLoader(filtered_train_dataset, batch_size=batch_size, shuffle=True)
+test_dl = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
 # train.train(model, train_dl, test_dl, 10)
 # print("eval: ", train.evaluate(model, test_dl))
@@ -85,7 +93,7 @@ class FlowerClient(fl.client.NumPyClient):
     # returns weights of MNIST netowrk after training
     def fit(self, parameters, config):
         self.set_parameters(parameters)
-        train.train(model, train_dl, test_dl, 10)
+        train.train(model, train_dl, test_dl, num_epochs)
         return self.get_parameters(config={}), len(train_x), {}
     
     def evaluate(self, parameters, config):

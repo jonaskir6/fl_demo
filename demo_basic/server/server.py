@@ -5,6 +5,12 @@ import torch
 import os
 import train
 import model
+import json
+
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+num_rounds = config['rounds']
 
 # need seq_len and n_features
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
