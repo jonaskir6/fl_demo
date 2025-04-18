@@ -1,7 +1,5 @@
 {
     "num_clients": 2,
     "source_path": "data",
-    "data": false ,
-    "imports": "",
     "rounds": 2
 }

@@ -10,67 +10,25 @@ import model as ml_model
 from collections import Counter
 from torchvision import datasets, transforms
 
-    
-def getDist(y):
-    counts = Counter(y)
-    classes = list(counts.keys())
-    class_counts = list(counts.values())
-    
-    plt.figure(figsize=(10, 6))
-    plt.bar(classes, class_counts, color='skyblue') 
-    
-    plt.title("Count of data classes")
-    plt.xlabel("Classes")
-    plt.ylabel("Count")
+train_data = None
+test_data = None
 
-    plt.savefig("client_count.png")
-    
-# Get data based on distribution
-def getData(dist, x, y):
-    dx = []
-    dy = []
-    counts = [0 for i in range(10)]
-    for i in range(len(x)):
-        if counts[y[i]]<dist[y[i]]:
-            dx.append(x[i])
-            dy.append(y[i])
-            counts[y[i]] += 1
-        
-    return np.array(dx), np.array(dy)
+# ----------------------------------------
+
+
+
+
+# Add code to load your data into train_data and test_data
+
+
+
+
+# ----------------------------------------
 
 model = ml_model.Model()
 
-transform = transforms.Compose([transforms.ToTensor(), 
-                torch.nn.Flatten(0)])
-
-train_data = datasets.MNIST(root='data', train=True, download=True, transform=transform)
-test_data = datasets.MNIST(root='data', train=False, transform=transform)
-
-
-# ### Convert to numpy arrays for getData function ###
-train_x_data = np.array([train_data[i][0].numpy() for i in range(len(train_data))])
-train_y_data = np.array([train_data[i][1] for i in range(len(train_data))])
-
-dist = torch.randint(100,5001, (10,)).tolist()
-
-#dist = [4000, 10, 3000, 30, 4500, 70, 3500, 20, 5000, 10]
-
-
-train_x, train_y = getData(dist, train_x_data, train_y_data)
-
-getDist(train_y)
-# ### Convert to numpy arrays for getData function ###
-
-filtered_train_x_tensor = torch.tensor(train_x).float()
-filtered_train_y_tensor = torch.tensor(train_y).long()
-
-filtered_train_dataset = TensorDataset(filtered_train_x_tensor, filtered_train_y_tensor)
-
-train_dl = DataLoader(filtered_train_dataset, batch_size=128, shuffle=True)
+train_dl = DataLoader(train_data, batch_size=128, shuffle=True)
 test_dl = DataLoader(test_data, batch_size=128, shuffle=False)
-
-# train.train(model, train_dl, test_dl, 10)
-# print("eval: ", train.evaluate(model, test_dl))
 
 
 class FlowerClient(fl.client.NumPyClient):
@@ -86,7 +44,7 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         self.set_parameters(parameters)
         train.train(model, train_dl, test_dl, 10)
-        return self.get_parameters(config={}), len(train_x), {}
+        return self.get_parameters(config={}), len(train_data), {}
     
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)

@@ -11,40 +11,22 @@ with open('config.json', 'r') as file:
     config = json.load(file)
 
 num_clients = config['num_clients']
-source_path = config['source_path']
-data = config['data']
-imports = config['imports'] if data else "flwr torch numpy matplotlib pandas torchvision scikit-learn seaborn"
 rounds = config['rounds']
 
-if data:
-    assert(num_clients < len([f for f in os.listdir(source_path) if os.path.isfile(os.path.join(source_path, f))])), "Not enough data for the maximum client number"
-
-
-def prepare_data():
-    print("Info: Preparing data...")
-
-    if data: 
-        for i in range (0, num_clients + 1):
-            os.makedirs(f"./client/data/client_{i}", exist_ok=True)
-            shutil.copy(f"./{source_path}/client_{i}.csv", f"./client/data/client_{i}/fl_data.csv")
-
-    print("Info: Data prepared successfully")
 
 
 def generate_dockerfiles():
     print("Info: Generating dockerfiles...")
-    data_str = "COPY data/client_{i}/fl_data.csv /app/fl_data.csv" if data else ""
     for i in range(1, num_clients + 1):
         content = f"""FROM nvidia/cuda:12.5.0-runtime-ubuntu20.04
 
             RUN apt-get update && apt-get install -y python3 python3-pip
 
-            RUN pip3 install {imports}
+            RUN pip3 install flwr torch numpy matplotlib pandas torchvision scikit-learn seaborn
 
             COPY client.py /app/client.py
             COPY model.py /app/model.py
             COPY train.py /app/train.py
-            {data_str}
 
             WORKDIR /app
 
@@ -110,7 +92,7 @@ def run_experiment(num_clients, output_dir):
     print(f"Info: Starting experiment with {num_clients} clients...")
     generate_docker_compose(num_clients)
     
-    subprocess.run(["sudo", "docker-compose", "up"], check=True)
+    subprocess.run(["sudo", "docker-compose", "up", "-d"], check=True)
 
     # get server container ID
     result = subprocess.run(["sudo", "docker", "ps", "-a", "--format", "{{.ID}} {{.Names}}"], 
@@ -122,6 +104,10 @@ def run_experiment(num_clients, output_dir):
         if "mock_server" in line.split()[1]:
             server_id = line.split()[0]
             break
+        
+    print("Info: Server container ID: ", server_id)
+    print("Info: Running experiments...")
+    subprocess.run(["sudo", "docker", "wait", server_id], check=True)
 
     # copy model
     model_path = f"/app/models/model_round_{rounds}.pth"
@@ -133,7 +119,5 @@ def run_experiment(num_clients, output_dir):
     print(f"Info: Finished experiment with {num_clients} clients successfully")
 
 
-prepare_data()
 generate_dockerfiles()
-
 run_experiment(num_clients, "results/models")
