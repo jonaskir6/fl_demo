@@ -14,7 +14,6 @@ num_clients = config['num_clients']
 rounds = config['rounds']
 
 
-
 def generate_dockerfiles():
     print("Info: Generating dockerfiles...")
     for i in range(1, num_clients + 1):
@@ -89,6 +88,7 @@ def generate_docker_compose(num_clients):
     print(f"Info: docker-compose.yml generated successfully with {num_clients} clients")
 
 
+# Running the experiment with docker-compose
 def run_experiment(num_clients, output_dir):
     print(f"Info: Starting experiment with {num_clients} clients...")
     generate_docker_compose(num_clients)

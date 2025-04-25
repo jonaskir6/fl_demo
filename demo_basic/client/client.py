@@ -19,6 +19,7 @@ num_epochs = config['num_epochs']
 batch_size = config['batch_size']
 
     
+# print distribution of classes in the dataset  
 def getDist(y):
     counts = Counter(y)
     classes = list(counts.keys())
@@ -54,8 +55,8 @@ transform = transforms.Compose([transforms.ToTensor(),
 train_data = datasets.MNIST(root='data', train=True, download=True, transform=transform)
 test_data = datasets.MNIST(root='data', train=False, transform=transform)
 
-
-# ### Convert to numpy arrays for getData function ###
+ 
+# Convert to numpy arrays for getData function
 train_x_data = np.array([train_data[i][0].numpy() for i in range(len(train_data))])
 train_y_data = np.array([train_data[i][1] for i in range(len(train_data))])
 
@@ -67,7 +68,6 @@ dist = torch.randint(100,5001, (10,)).tolist()
 train_x, train_y = getData(dist, train_x_data, train_y_data)
 
 getDist(train_y)
-# ### Convert to numpy arrays for getData function ###
 
 filtered_train_x_tensor = torch.tensor(train_x).float()
 filtered_train_y_tensor = torch.tensor(train_y).long()
