@@ -1,0 +1,95 @@
+import torch
+import json
+
+# Load configuration
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
+lr = config['learning_rate']
+
+def train(model, train_data, test_data, epochs):
+    # Select device
+    if torch.cuda.is_available():
+        device = torch.device('cuda:0')
+    else:
+        device = torch.device('cpu')
+    print(f'Using device: {device}')
+    print('=========================================')
+
+    model.to(device)
+
+    model.train()
+
+    criterion = torch.nn.CrossEntropyLoss()
+
+    losses = []
+
+    for step in range(epochs):
+
+        for X, y in train_data:
+            X = X.to(device)
+            y = y.to(device)
+
+            y_logit = model(X)
+            loss = criterion(y_logit, y)
+            loss.backward()
+
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.95, weight_decay=0.0001)
+            optimizer.step()
+
+            optimizer.zero_grad()
+
+
+        string_one = (f"Epoch {step}: ", loss)
+
+        num_correct = 0
+        num_total = 0
+
+        with torch.no_grad():
+            model.eval()
+
+            for X, y in test_data:
+                X = X.to(device)
+                y = y.to(device)
+
+                pred = model(X)
+                pred_classes = torch.argmax(pred, dim=1)
+                num_correct += (pred_classes == y).sum().item()
+                num_total += X.shape[0]
+            
+            acc = num_correct / num_total * 100.0
+            print(string_one + (", Accuracy: ", acc))
+
+
+def evaluate(model, test_data):
+    # Select device
+    if torch.cuda.is_available():
+        device = torch.device('cuda:0')
+    else:
+        device = torch.device('cpu')
+    print(f'Using device: {device}')
+    print('=========================================')
+
+    model.to(device)
+
+    model.eval()
+
+    num_correct = 0
+    num_total = 0
+
+    with torch.no_grad():
+        for X, y in test_data:
+            X = X.to(device)
+            y = y.to(device)
+
+            pred = model(X)
+            pred_classes = torch.argmax(pred, dim=1)
+            num_correct += (pred_classes == y).sum().item()
+            num_total += X.shape[0]
+
+        acc = num_correct / num_total * 100.0
+        print(f"Accuracy: {acc}")
+        return acc
+
+
+        
